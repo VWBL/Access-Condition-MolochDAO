@@ -21,6 +21,12 @@ contract AccessControlCheckerByDAOMember is IAccessControlChecker {
 
     event grantedAccessControl(bytes32 documentId);
 
+    modifier onlyDAOMember {
+        (,uint256 shares, uint256 loot,,,) = molochContract.members(msg.sender);
+        require(shares > 0 || loot > 0, "msg.sender is not a DAO member");
+        _;
+    }
+
     constructor(address _moloch, address _vwblGateway) public {
         molochContract = Moloch(_moloch);
         vwblGateway = _vwblGateway;
@@ -51,7 +57,7 @@ contract AccessControlCheckerByDAOMember is IAccessControlChecker {
         address author,
         string calldata name,
         string calldata encryptedDataUrl
-    ) external payable returns (bytes32) {
+    ) external onlyDAOMember payable returns (bytes32) {
         IVWBLGateway(vwblGateway).grantAccessControl.value(msg.value)(documentId, address(this));
 
         documentIdToInfo[documentId].author = author;
