@@ -1,5 +1,5 @@
 # Access-Condition-MolchDAO
-This contract is VWBL's access condition contract which defined MolchDAO member only can view digital content
+VWBL's access condition contract which defined MolchDAO member only can view digital content
 
 # Test
 1. Start a local Ethereum network basedn on a snapshot of the mainnet.
