@@ -65,7 +65,7 @@ contract AccessControlCheckerByDAOMember is IAccessControlChecker {
      * @notice Grant access control, register access condition and digital content info
      * @param documentId The Identifier of digital content and decryption key
      * @param author The address of author
-     * @param tokenId The digital content name
+     * @param name The digital content name
      * @param encryptedDataUrl The Url of encrypted digital content data
      */
     function grantAccessControlToDAOMember(
