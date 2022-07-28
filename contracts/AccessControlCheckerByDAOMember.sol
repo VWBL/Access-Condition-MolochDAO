@@ -32,10 +32,19 @@ contract AccessControlCheckerByDAOMember is IAccessControlChecker {
         vwblGateway = _vwblGateway;
     }
 
+    /**
+     * @notice Get array of documentIds
+     */
     function getDocumentIds() external view returns (bytes32[] memory) {
         return documentIds;
     }
 
+    /**
+     * @notice Return true if user is DAO member. 
+     *         This function is called by VWBL Gateway contract.
+     * @param user The address of decryption key requester
+     * @param documentId The Identifier of digital content and decryption key
+     */
     function checkAccessControl(
         address user,
         bytes32 documentId
@@ -52,6 +61,13 @@ contract AccessControlCheckerByDAOMember is IAccessControlChecker {
         return false;
     }
 
+    /**
+     * @notice Grant access control, register access condition and digital content info
+     * @param documentId The Identifier of digital content and decryption key
+     * @param author The address of author
+     * @param tokenId The digital content name
+     * @param encryptedDataUrl The Url of encrypted digital content data
+     */
     function grantAccessControlToDAOMember(
         bytes32 documentId,
         address author,
