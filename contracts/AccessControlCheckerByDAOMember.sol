@@ -40,6 +40,23 @@ contract AccessControlCheckerByDAOMember is IAccessControlChecker {
     }
 
     /**
+     * @dev Return owner address of document id
+     * @param documentId The Identifier of digital content and decryption key
+     * @return owner address
+     */
+    function getOwnerAddress(bytes32 documentId) external view returns (address) {
+        return address(0);
+    }
+
+    /**
+     * @notice Return owner address of documentId
+     * @param documentId The Identifier of digital content and decryption key 
+     */
+    function getMinterAddress(bytes32 documentId) external view returns (address) {
+        return documentIdToInfo[documentId].author;
+    } 
+
+    /**
      * @notice Return true if user is DAO member. 
      *         This function is called by VWBL Gateway contract.
      * @param user The address of decryption key requester
@@ -64,19 +81,17 @@ contract AccessControlCheckerByDAOMember is IAccessControlChecker {
     /**
      * @notice Grant access control, register access condition and digital content info
      * @param documentId The Identifier of digital content and decryption key
-     * @param author The address of author
      * @param name The digital content name
      * @param encryptedDataUrl The Url of encrypted digital content data
      */
     function grantAccessControlToDAOMember(
         bytes32 documentId,
-        address author,
         string calldata name,
         string calldata encryptedDataUrl
     ) external onlyDAOMember payable returns (bytes32) {
         IVWBLGateway(vwblGateway).grantAccessControl.value(msg.value)(documentId, address(this));
 
-        documentIdToInfo[documentId].author = author;
+        documentIdToInfo[documentId].author = msg.sender;
         documentIdToInfo[documentId].name = name;
         documentIdToInfo[documentId].encryptedDataUrl = encryptedDataUrl;
         existDocumentId[documentId] = true;
