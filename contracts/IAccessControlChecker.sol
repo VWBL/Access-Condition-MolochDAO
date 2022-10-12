@@ -7,8 +7,4 @@ interface IAccessControlChecker {
     function getOwnerAddress(
         bytes32 documentId
     ) external view returns (address);
-
-    function getMinterAddress(
-        bytes32 documentId
-    ) external view returns (address);
 }

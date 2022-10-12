@@ -5,6 +5,8 @@ import { AccessControlCheckerByDAOMember } from '../typechain/AccessControlCheck
 import { AccessControlCheckerByDAOMember__factory } from '../typechain/factories/AccessControlCheckerByDAOMember__factory';
 import { VWBLGateway } from '../typechain/VWBLGateway';
 import { VWBLGateway__factory } from '../typechain/factories/VWBLGateway__factory'
+import { GatewayProxy } from '../typechain/GatewayProxy';
+import { GatewayProxy__factory } from '../typechain/factories/GatewayProxy__factory';
 import { parseEther } from '@ethersproject/units';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
@@ -19,6 +21,7 @@ describe('AccessConntrolCheckerByDAOMember', function () {
     let nonDAOMemberSigner: SignerWithAddress;
     let accessConditionContract: AccessControlCheckerByDAOMember;
     let vwblGatewayContract: VWBLGateway;
+    let gatewayProxyContract: GatewayProxy;
 
     it ('deploy contract', async function () {
         await network.provider.request({
@@ -37,6 +40,15 @@ describe('AccessConntrolCheckerByDAOMember', function () {
             );
         await vwblGatewayContract.deployed();
 
+        const gatewayProxyContractFactory = (await hre.ethers.getContractFactory(
+            'GatewayProxy'
+        )) as GatewayProxy__factory;
+        gatewayProxyContract = await gatewayProxyContractFactory
+            .connect(deployerOrSigner)
+            .deploy(
+                vwblGatewayContract.address
+            );
+
         const accessConditionContractFactory = (await hre.ethers.getContractFactory(
             'AccessControlCheckerByDAOMember' 
         )) as AccessControlCheckerByDAOMember__factory;
@@ -44,7 +56,7 @@ describe('AccessConntrolCheckerByDAOMember', function () {
             .connect(deployerOrSigner)
             .deploy(
                 "0x519F9662798c2E07fbd5B30C1445602320C5cF5B", // MolochDAO: Moloch Treasury V3
-                vwblGatewayContract.address
+                gatewayProxyContract.address
             );
         await accessConditionContract.deployed();
 

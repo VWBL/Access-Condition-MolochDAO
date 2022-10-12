@@ -4,10 +4,11 @@ pragma solidity ^0.5.2;
 import "./IAccessControlChecker.sol";
 import "./dependencies/Moloch.sol";
 import "./IVWBLGateway.sol";
+import "./IGatewayProxy.sol";
 
 contract AccessControlCheckerByDAOMember is IAccessControlChecker {
     Moloch public molochContract;
-    address public vwblGateway;
+    address public gatewayProxy;
 
     struct Info {
         address author;
@@ -27,9 +28,23 @@ contract AccessControlCheckerByDAOMember is IAccessControlChecker {
         _;
     }
 
-    constructor(address _moloch, address _vwblGateway) public {
+    constructor(address _moloch, address _gatewayProxy) public {
         molochContract = Moloch(_moloch);
-        vwblGateway = _vwblGateway;
+        gatewayProxy = _gatewayProxy;
+    }
+
+    /**
+     * @notice Get VWBL gateway address
+     */
+    function getGatewayAddress() public view returns (address) {
+        return IGatewayProxy(gatewayProxy).getGatewayAddress();
+    }
+
+    /**
+     * @notice Get VWBL Fee
+     */
+    function getFee() public view returns (uint256) {
+        return IVWBLGateway(getGatewayAddress()).feeWei();
     }
 
     /**
@@ -47,14 +62,6 @@ contract AccessControlCheckerByDAOMember is IAccessControlChecker {
     function getOwnerAddress(bytes32 documentId) external view returns (address) {
         return address(0);
     }
-
-    /**
-     * @notice Return owner address of documentId
-     * @param documentId The Identifier of digital content and decryption key 
-     */
-    function getMinterAddress(bytes32 documentId) external view returns (address) {
-        return documentIdToInfo[documentId].author;
-    } 
 
     /**
      * @notice Return true if user is DAO member. 
@@ -89,7 +96,7 @@ contract AccessControlCheckerByDAOMember is IAccessControlChecker {
         string calldata name,
         string calldata encryptedDataUrl
     ) external onlyDAOMember payable returns (bytes32) {
-        IVWBLGateway(vwblGateway).grantAccessControl.value(msg.value)(documentId, address(this));
+        IVWBLGateway(getGatewayAddress()).grantAccessControl.value(msg.value)(documentId, address(this), msg.sender);
 
         documentIdToInfo[documentId].author = msg.sender;
         documentIdToInfo[documentId].name = name;
