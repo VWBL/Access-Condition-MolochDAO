@@ -9,15 +9,24 @@ import "./IGatewayProxy.sol";
 contract AccessControlCheckerByDAOMember is IAccessControlChecker {
     Moloch public molochContract;
     address public gatewayProxy;
+    string private signMessage;
+    string private allowOrigins;
+
+    uint256 public counter = 0;
 
     struct Info {
         address author;
         string name;
         string encryptedDataUrl;
     }
-
     mapping(bytes32 => Info) public documentIdToInfo;
     mapping(bytes32 => bool) public existDocumentId; 
+
+    struct Token {
+        address contractAddress;
+        uint256 tokenId;
+    }
+    mapping(bytes32 => Token) public documentIdToToken;
     bytes32[] public documentIds;
 
     event grantedAccessControl(bytes32 documentId);
@@ -28,9 +37,11 @@ contract AccessControlCheckerByDAOMember is IAccessControlChecker {
         _;
     }
 
-    constructor(address _moloch, address _gatewayProxy) public {
+    constructor(address _moloch, address _gatewayProxy, string memory _signMessage, string memory _allowOrigins) public {
         molochContract = Moloch(_moloch);
         gatewayProxy = _gatewayProxy;
+        signMessage = _signMessage;
+        allowOrigins = _allowOrigins;
     }
 
     /**
@@ -45,6 +56,17 @@ contract AccessControlCheckerByDAOMember is IAccessControlChecker {
      */
     function getFee() public view returns (uint256) {
         return IVWBLGateway(getGatewayAddress()).feeWei();
+    }
+
+    /**
+     * @notice Get the message to be signed of this contract
+     */
+    function getSignMessage() public view returns (string memory) {
+        return signMessage;
+    }
+
+    function getAllowOrigins() public view returns (string memory) {
+        return allowOrigins;
     }
 
     /**
@@ -97,6 +119,9 @@ contract AccessControlCheckerByDAOMember is IAccessControlChecker {
         string calldata encryptedDataUrl
     ) external onlyDAOMember payable returns (bytes32) {
         IVWBLGateway(getGatewayAddress()).grantAccessControl.value(msg.value)(documentId, address(this), msg.sender);
+
+        documentIdToToken[documentId].contractAddress = address(this);
+        documentIdToToken[documentId].tokenId = ++counter;
 
         documentIdToInfo[documentId].author = msg.sender;
         documentIdToInfo[documentId].name = name;

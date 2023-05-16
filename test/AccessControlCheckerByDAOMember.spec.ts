@@ -56,7 +56,9 @@ describe('AccessConntrolCheckerByDAOMember', function () {
             .connect(deployerOrSigner)
             .deploy(
                 "0x519F9662798c2E07fbd5B30C1445602320C5cF5B", // MolochDAO: Moloch Treasury V3
-                gatewayProxyContract.address
+                gatewayProxyContract.address,
+                "Hello DAO Member",
+                "https.xxx.yyy.zzz"
             );
         await accessConditionContract.deployed();
 
